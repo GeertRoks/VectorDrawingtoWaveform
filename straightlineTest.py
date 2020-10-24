@@ -14,14 +14,14 @@ def linearBezierComplex(p0, p1, t):
     return pFinal
 
 
-def bezierOscillator(f, fs, seconds, readType = "forward"):
+def linearBezierOscillator(f, fs, duration, readDirection = "forward"):
     '''
 
         Input:
             f(float):           frequency of the oscillator
             fs(int):            sampling rate of the oscillator
-            seconds(float):     duration of the synthesized sound in seconds
-            readType(string):   The way how the oscillator reads the vector. Options: forward, backward and backforth
+            duration(float):     duration of the synthesized sound in seconds
+            readDirection(string):   The way how the oscillator reads the vector. Options: forward, backward and backforth
 
         Output:
             y_real(numpy.array):    synthesized sound from the horizontal movement over the vector image (x-axis, real)
@@ -29,21 +29,21 @@ def bezierOscillator(f, fs, seconds, readType = "forward"):
 
     '''
     # init parameters
-    num_samples = fs * seconds
+    num_samples = fs * duration
     step_size = f/fs # step size: 1/(samples per period) = 1/(fs/f) = f/fs
     offset = 0.5
 
     # setup the step waveform t through the bezier curve: choice for forward, backward or back-and-forth
-    if (readType == "forward" or readType == "backward"):
+    if (readDirection == "forward" or readDirection == "backward"):
         t = np.arange(0., 1., step_size)
         offset_index = np.where(t >= offset)[0][0]
         t = np.resize(t, num_samples + offset_index)
         t = t[offset_index:]
 
-        if (readType == "backward"):
+        if (readDirection == "backward"):
             t = np.where(t, 1-t, 1.)
 
-    elif (readType == "backforth"):
+    elif (readDirection == "backforth"):
         half_t = np.arange(0.,1., step_size*2)
         offset_index = np.where(half_t >= offset)[0][0]
         t = np.resize(np.append(half_t, half_t[::-1]), num_samples + offset_index)
