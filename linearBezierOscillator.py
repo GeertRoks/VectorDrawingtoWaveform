@@ -79,15 +79,4 @@ def linearBezierOscillator(f, fs, duration, readDirection = "forward"):
     return (y_real, y_imag)
 
 
-def playSound(sound, fs):
-    import pygame
-    from time import sleep
-
-    sound = (sound*32768).astype(np.int16)
-    pygame.mixer.pre_init(fs, size=-16, channels=1)
-    pygame.mixer.init()
-    audio = pygame.sndarray.make_sound(sound)
-
-    audio.play()
-    sleep(0.01)
 

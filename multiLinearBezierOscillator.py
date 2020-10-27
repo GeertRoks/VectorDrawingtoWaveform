@@ -1,20 +1,34 @@
 import bezierCurves as bezier
-import matplotlib.pyplot as plt
+import utilFunctions as util
+
 import numpy as np
 
-def multiLinearBezierOscillator(f, fs, duration, readDirection):
+# point up /\
+point_up = [-1-1j, 0+1j, 1-1j]
+point_down = [-1+1j, 0-1j, 1+1j]
+triangle = [-1-1j, 0+1j, 1-1j, -1-1j]
+square = [-1-1j, -1+1j, 1+1j, 1-1j, -1-1j]
 
-    # point up /\
-    p_left = -1-1j
-    p_middle = 0+1j
-    p_right = 1-1j
-    points = np.array([p_left, p_middle, p_right])
-    num_lines = np.size(points) - 1
-    print(num_lines)
+def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forward", plot = False):
+'''
+        Input:
+            points(array(complex)):     Array of complex numbers that denote the points of the bezier figure
+            f(float):                   frequency of the oscillator
+            fs(int):                    sampling rate of the oscillator
+            duration(float):            duration of the synthesized sound in seconds
+            readDirection(string):      The way how the oscillator reads the vector. Options: forward, backward and backforth
+            plot(boolean):              Denotes if the result has to be plot or not
+
+        Output:
+            y_real(numpy.array):    synthesized sound from the horizontal movement over the vector image (x-axis, real)
+            y_imag(numpy.array):    synthesized sound from the vertical movement over the vector image (y-axis, imaginary)
+
+'''
 
     # init parameters
+    num_lines = np.size(points) - 1
     num_samples = fs * duration
-    step_size = f*num_lines/fs # step size: 1/(samples per period) = 1/(fs/f) = f/fs
+    step_size = f*num_lines/fs # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs
 
     #offset = 0.5 # TODO: add scalable offset
 
@@ -53,7 +67,7 @@ def multiLinearBezierOscillator(f, fs, duration, readDirection):
 
         prev_t = ti
 
-        # Write signal with correct points 
+        # Write signal with correct points
         #   if first line, then sel_line == 0, thus points[0] and points[1]
         #   if second line, then sel_line == 1, thus points[1] and points[2]
         x[idx] = bezier.linearBezierComplex(points[sel_line],points[sel_line+1], ti)
@@ -68,31 +82,8 @@ def multiLinearBezierOscillator(f, fs, duration, readDirection):
     y_imag = A * x_imag
 
     # Plot results
-    fig, axes = plt.subplots(3, 1)
-
-    plt.subplot(311)
-    plt.plot(x_real, x_imag)
-    axes[0].set_xlim((0,2))
-    axes[0].set_ylim((0,2))
-    x0,x1 = axes[0].get_xlim()
-    y0,y1 = axes[0].get_ylim()
-    axes[0].set_aspect(abs(x1-x0)/abs(y1-y0))
-    axes[0].grid(b=True, which='major', color='k', linestyle='--')
-    plt.autoscale(tight = True)
-
-    plt.subplot(312)
-    plt.plot(t, x_real, label="x_real")
-    plt.plot(t, x_imag, label="x_imag")
-    plt.autoscale(tight = True)
-
-    plt.subplot(313)
-    plt.plot(np.arange(0,num_samples/fs,1/fs), y_real, label="y_real")
-    plt.plot(np.arange(0,num_samples/fs,1/fs), y_imag, label="y_imag")
-    plt.autoscale(tight = True)
-
-    plt.tight_layout()
-    plt.legend()
-    plt.show()
+    if (plot):
+        util.plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration)
 
     return (y_real, y_imag)
 
