@@ -30,7 +30,39 @@ def plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration):
     plt.tight_layout()
     plt.legend()
     plt.show()
-    #return plt
+
+def plotBezier(bezier, t, curvePoints = np.array([])):
+    fig, axes = plt.subplots(1, 1, figsize=(8,8))
+
+    # setup axes
+    axes.set_xlim((-1.5,1.5))
+    axes.set_ylim((-1.5,1.5))
+    x0,x1 = axes.get_xlim()
+    y0,y1 = axes.get_ylim()
+    axes.set_aspect(abs(x1-x0)/abs(y1-y0))
+    axes.grid(b=True, which='major', color='k', linestyle=':')
+    axes.axhline(0, color='black') # origin x-axis accent
+    axes.axvline(0, color='black') # origin y-axis accent
+
+    # plot bezier curve
+    if bezier.dtype == 'complex':
+        plt.plot(np.real(bezier), np.imag(bezier))
+        # Add points to begin and end points and to control points if there are any
+        plt.plot(np.real(bezier[0]),np.imag(bezier[0]), marker='x', color='red')
+        plt.plot(np.real(bezier[-1]),np.imag(bezier[-1]), marker='x', color='red')
+        if curvePoints.size != 0:
+            for cp in curvePoints:
+                plt.scatter(np.real(cp),np.imag(cp), marker='x', color='red')
+    else:
+        plt.plot(bezier[:,0], bezier[:,1])
+        # Add points to begin and end points and to control points if there are any
+        plt.plot(bezier[0,0], bezier[0,1], marker='x', color='red')
+        plt.plot(bezier[-1,0],bezier[-1,1], marker='x', color='red')
+        if curvePoints.size != 0:
+            for cp in curvePoints:
+                plt.scatter(cp[0],cp[1], marker='x', color='red')
+
+    plt.show()
 
 def playSound(sound, fs):
     sound = (sound*32768).astype(np.int16)
