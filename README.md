@@ -15,14 +15,14 @@
 
 - [x]  Multiple linear Bézier curves chained together
 - [x]  Simple geometric shapes, such as rectangle and triangle
-- [x]  `def multiLinearBezierOscillator(f, fs, duration, readDirection)`
+- [x]  `def multiLinearBezierOscillator(points, f, fs, duration, readDirection)`
     - [x]  go through multiple bezier curves that are connected with still a 0\<t\<1
 
 ##### Step 3:
 
 - [x]  Quadratic Bézier curve
 - [ ]  Unit circle around origin → sine (build from 2 or 4 quadratic Bézier Curves)
-- [ ]  `def multiQuadraticBezierOscillator(f, fs, duration, readDirection)`
+- [ ]  `def multiQuadraticBezierOscillator(points, f, fs, duration, readDirection)`
     - [x]  `def quadraticBezier(p0, p1, p2, t)` p0, p1 and p2 are complex, 0\<t\<1
     - [ ]  multiple quadratic bezier curves chained together
 
@@ -31,7 +31,11 @@
 - [ ]  Complex drawing
 - [ ]  playable on Keyboard (keys on computer)
 - [ ]  Drawing sheet in web environment? (python + JS + HTML/CSS)
-- [ ]  `simpleBezierOscillator(f, fs, path, readDirection)` path is an array of arrays. Each subarray is a bezier curve with 2 or 3 points.
+- [ ]  `simpleBezierOscillator(path, f, fs, readDirection)`
+    - path is an array of arrays. Each subarray is a bezier curve with 2 or 3 points.
+    - f is a float that sets the frequency of the oscillator
+    - fs is an int that sets the sample rate of the oscillator
+    - readDirection is a string that sets the way the points are read (forward, backward or backforth)
 
 --------------------------------
 ##### Future steps that aren't planned out yet
