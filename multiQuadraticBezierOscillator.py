@@ -26,7 +26,7 @@ def multiQuadraticBezierOscillator(path, f, fs, duration, readDirection = "forwa
     num_samples = int(math.ceil(fs * duration))
     step_size = f/fs # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs
 
-    phase_offset = 0.5 # TODO: add scalable offset
+    phase_offset = 0.5
 
     # get phase function
     t = util.linearPhaseFunction(step_size, num_lines, readDirection, phase_offset)

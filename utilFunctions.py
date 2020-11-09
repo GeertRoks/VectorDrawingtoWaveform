@@ -4,7 +4,7 @@ import math
 import pygame
 from time import sleep
 
-def plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration, phase_offset):
+def plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration, phase_offset=0.0):
     fig, axes = plt.subplots(3, 1, figsize=(9.5,9.5))
 
     # Bezier figure

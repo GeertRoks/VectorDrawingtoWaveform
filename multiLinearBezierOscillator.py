@@ -32,32 +32,10 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
     num_samples = int(math.ceil(fs * duration))
     step_size = f/fs # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs
 
-    #offset = 0.5 # TODO: add scalable offset
+    phase_offset = 0.5
 
-    # setup the step waveform t through the bezier curve for one period: choice for forward, backward or back-and-forth
-    if (readDirection == "forward" or readDirection == "backward"):
-        t = np.arange(0., 1., step_size)
-        t = t * num_lines
-
-        # TODO: add scalable offset
-        #offset_index = np.where(t >= offset)[0][0]
-        #t = np.resize(t, num_samples + offset_index)
-        #t = t[offset_index:]
-
-        if (readDirection == "backward"):
-            t = np.where(t, num_lines-t, num_lines)
-
-    elif (readDirection == "backforth"):
-        half_t = np.arange(0.,1., step_size*2)
-        t = np.append(half_t, half_t[::-1]) * 4
-
-        # TODO: add scalable offset
-        #offset_index = np.where(half_t >= offset)[0][0]
-        #t = np.resize(np.append(half_t, half_t[::-1]), num_samples + offset_index)
-        #t = t[offset_index:]
-
-    else:
-        return 0
+    # generate phase ramp
+    t = util.linearPhaseFunction(step_size, num_lines, readDirection, phase_offset)
 
     # get signal
     x = np.zeros(np.size(t), dtype = complex)
