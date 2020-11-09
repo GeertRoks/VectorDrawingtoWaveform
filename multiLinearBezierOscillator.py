@@ -2,6 +2,7 @@ import bezierCurves as bezier
 import utilFunctions as util
 
 import numpy as np
+import scipy.signal
 import math
 
 # point up /\
@@ -30,7 +31,7 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
     # init parameters
     num_lines = np.size(points) - 1
     num_samples = int(math.ceil(fs * duration))
-    step_size = f/fs # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs
+    step_size = f/(4*fs) # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs (Generate at 4 times the target samplerate)
 
     phase_offset = 0.5
 
@@ -46,6 +47,11 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
         #   etc...
         x[idx] = bezier.linearBezierComplex(points[math.floor(ti)],points[math.ceil(ti)], ti-math.floor(ti))
 
+    # Low pass the signal for Anti-Aliasing
+
+    # Down sample the signal to the target sample rate (fs)
+    x, t = scipy.signal.resample(x, fs, t)
+
     # repeat the period for the amount needed to fill the duration
     x = np.resize(x, num_samples)
 
@@ -60,7 +66,7 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
 
     # Plot results
     if (plot):
-        util.plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration)
+        util.plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration, phase_offset)
 
     return (y_real, y_imag)
 
