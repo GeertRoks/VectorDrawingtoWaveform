@@ -30,7 +30,7 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
 
     # init parameters
     num_lines = np.size(points) - 1
-    num_samples = int(math.ceil(fs * duration))
+    num_samples = int(math.ceil(fs*4 * duration))
     step_size = f/(4*fs) # step size for one line: 1/(samples per period) * num_lines = 1/(fs/f) * numlines = f*num_lines/fs (Generate at 4 times the target samplerate)
 
     phase_offset = 0
@@ -47,15 +47,19 @@ def multiLinearBezierOscillator(points, f, fs, duration, readDirection = "forwar
         #   etc...
         x[idx] = bezier.linearBezierComplex(points[math.floor(ti)],points[math.ceil(ti)], ti-math.floor(ti))
 
-    # Low pass the signal for Anti-Aliasing
-
-    # Down sample the signal to the target sample rate (fs)
-    x, t = scipy.signal.resample(x, fs, t)
-
-    onePeriod = x
+    onePeriod = scipy.signal.resample(x,int(fs/f)+1)
 
     # repeat the period for the amount needed to fill the duration
     x = np.resize(x, num_samples)
+
+
+    # Low pass the signal for Anti-Aliasing
+    taps = scipy.signal.firwin(128, 20000/(2*fs))
+    filtered_x = scipy.signal.lfilter(taps, 1.0, x)
+
+    # Down sample the signal to the target sample rate (fs)
+    x = scipy.signal.resample(filtered_x, fs*duration)
+
 
     # Scale amplitude of signals
     A = 0.8

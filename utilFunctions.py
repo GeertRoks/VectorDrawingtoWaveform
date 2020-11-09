@@ -40,12 +40,12 @@ def plotResults(onePeriod, fullSample, num_lines, fs, f, duration, readDirection
     axes[1].autoscale(tight = True)
 
     # Synthesis plot
-    axes[2].plot(np.arange(0,duration,1/fs), np.real(fullSample), label="x")
-    axes[2].plot(np.arange(0,duration,1/fs), np.imag(fullSample), label="y")
-    axes[2].set_xlim((0,duration))
+    axes[2].plot(np.arange(0, math.floor(1*fs/f)), np.real(fullSample[:int(math.floor(1*fs/f))]), label="x")
+    axes[2].plot(np.arange(0, math.floor(1*fs/f)), np.imag(fullSample[:int(math.floor(1*fs/f))]), label="y")
+    axes[2].set_xlim((0,math.ceil(1*fs/f)))
     axes[2].set_ylim((-1.,1.))
-    axes[2].set_title('Full duration of generated sample')
-    axes[2].set_xlabel('seconds')
+    axes[2].set_title('First 5 periods of generated waveform')
+    axes[2].set_xlabel('samples')
     plt.legend()
 
     plt.tight_layout()
