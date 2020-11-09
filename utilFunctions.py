@@ -4,36 +4,51 @@ import math
 import pygame
 from time import sleep
 
-def plotResults(x_real, x_imag, y_real, y_imag, fs, f, t, duration, phase_offset=0.0):
+def plotResults(onePeriod, fullSample, num_lines, fs, f, duration, readDirection, phase_offset=0.0):
     fig, axes = plt.subplots(3, 1, figsize=(9.5,9.5))
 
     # Bezier figure
-    axes[0].plot(x_real[:int(fs/f)], x_imag[:int(fs/f)])
+    axes[0].plot(np.real(onePeriod[:int(fs/f)]), np.imag(onePeriod[:int(fs/f)]))
+    #plot information
+    axes[0].set_title('Bezier figure')
     axes[0].set_xlim((-1.5,1.5))
     axes[0].set_ylim((-1.5,1.5))
+    axes[0].set_xticks([-1.5,-1,-0.5,0,0.5,1,1.5])
+    axes[0].set_yticks([-1.5,-1,-0.5,0,0.5,1,1.5])
+    #set aspectratio of plot
     x0,x1 = axes[0].get_xlim()
     y0,y1 = axes[0].get_ylim()
     axes[0].set_aspect(abs(x1-x0)/abs(y1-y0))
     axes[0].grid(b=True, which='major', color='k', linestyle='--')
 
     # Period plot
-    # TODO plot period with phase offset and with segment lines intact
-    num_lines = int(math.ceil(np.max(t)))
-    period_t = np.where(t/num_lines - phase_offset < 0.0, t + (num_lines - phase_offset), t/num_lines - phase_offset)
-    axes[1].plot(t, x_real[:np.size(t)], label="x_real")
-    axes[1].plot(t, x_imag[:np.size(t)], label="x_imag")
-    for xc in range(1,math.ceil(t[-1])):
-        axes[1].axvline(x=xc, color ="red", linestyle='--')
+    period_t = np.arange(0.,1., f/fs) * num_lines
+    #period_t = np.roll(t,int(math.floor(t.size*phase_offset))) # undo phase shift to normalize to 0 on plot
+    #plot the data with the normalized t
+    axes[1].plot(period_t, np.real(onePeriod), label="x")
+    axes[1].plot(period_t, np.imag(onePeriod), label="y")
+    #draw segment indicators
+    if (readDirection.lower() == 'backforth'):
+        for xc in range(1, 2*num_lines +1):
+            axes[1].axvline(x=(xc - phase_offset)/2, color="red", linestyle='--')
+    else:
+        for xc in range(1,num_lines+1):
+            axes[1].axvline(x=xc - phase_offset, color="red", linestyle='--')
+    #plot information
+    axes[1].set_title('One period of the x and y output')
+    axes[1].set_xlabel('t')
     axes[1].autoscale(tight = True)
 
     # Synthesis plot
-    axes[2].plot(np.arange(0,duration,1/fs), y_real, label="y_real")
-    axes[2].plot(np.arange(0,duration,1/fs), y_imag, label="y_imag")
+    axes[2].plot(np.arange(0,duration,1/fs), np.real(fullSample), label="x")
+    axes[2].plot(np.arange(0,duration,1/fs), np.imag(fullSample), label="y")
     axes[2].set_xlim((0,duration))
     axes[2].set_ylim((-1.,1.))
+    axes[2].set_title('Full duration of generated sample')
+    axes[2].set_xlabel('seconds')
+    plt.legend()
 
     plt.tight_layout()
-    plt.legend()
     plt.show()
 
 def plotBezier(bezier, t, curvePoints = np.array([])):
@@ -91,19 +106,19 @@ def linearPhaseFunction(step_size, num_lines, readDirection='forward', phase_off
         #t = t[offset_index:]
 
         if (readDirection.lower() == "backward"):
-            t = np.where(t, num_lines-t, num_lines)
+            #t = np.where(t, num_lines-t, num_lines)
+            t = t[::-1]
 
         period_size = t.size
         t = np.roll(t,-int(math.floor(period_size*phase_offset)))
 
     elif (readDirection.lower() == "backforth"):
         half_t = np.arange(0.,1., step_size*2)
-        t = np.append(half_t, half_t[::-1]) * 4
+        t = np.append(half_t, half_t[::-1])
+        t = t * num_lines
 
-        # TODO: add scalable offset
-        #offset_index = np.where(half_t >= offset)[0][0]
-        #t = np.resize(np.append(half_t, half_t[::-1]), num_samples + offset_index)
-        #t = t[offset_index:]
+        period_size = t.size
+        t = np.roll(t,-int(math.floor(period_size*phase_offset)))
 
     else:
         return 0
